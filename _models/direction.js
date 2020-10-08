@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "routeID",
         onDelete: "CASCADE",
       });
+      Direction.hasMany(models.Stop, {
+        foreignKey: "directionID",
+      });
     }
   }
   Direction.init(

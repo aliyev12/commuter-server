@@ -4,9 +4,11 @@ const errorMsg = "Something went wrong while updating routes info";
 
 async function updateRoutesInfoController(req, res) {
   const secretKey = req.body.secretKey;
+  const fetchFrom = req.body.fetchFrom || "api";
+
   if (secretKey && secretKey === process.env.UPDATE_ROUTES_KEY) {
     try {
-      await fetchRoutesInfo();
+      await fetchRoutesInfo(fetchFrom);
       res.status(200).json({
         message: "Successfully updated routes info",
       });
@@ -31,6 +33,7 @@ http://localhost:3333/api/update-routes-info
 
 {
     "secretKey": "xxxxxx"
+    "fetchFrom": "api"
 }
 
 */

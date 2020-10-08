@@ -6,6 +6,7 @@ const channels = [
   "realtimeBusInfo",
   "getRoutes",
   "getDirections",
+  "getStops",
 ];
 
 const setupListeners = (io, socket) => {

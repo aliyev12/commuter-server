@@ -15,7 +15,7 @@ async function handleRoute(route) {
     routeID: route.routeID,
     routeName: route.routeName,
   });
-  const newRoute = await buildRoute.save();
+  await buildRoute.save();
 
   route.directions.forEach(handleDirection.bind(this, route.routeID));
 }
@@ -28,19 +28,20 @@ async function handleDirection(routeID, direction) {
     directionName: direction.directionName,
     tripHeadsign: direction.tripHeadsign,
     directionNum: direction.directionNum,
+    stops: JSON.stringify(direction.stops),
     routeID,
   });
-  const newDirection = await buildDirection.save();
+  await buildDirection.save();
 
   // direction.stops.forEach(handleStop.bind(this, newDirection.id));
 
-  const stopsWithDirId = direction.stops.map((s) => ({
-    ...s,
-    stopRoutes: s.stopRoutes.join(","),
-    directionID: newDirection.id,
-  }));
+  // const stopsWithDirId = direction.stops.map((s) => ({
+  //   ...s,
+  //   stopRoutes: s.stopRoutes.join(","),
+  //   directionID: newDirection.id,
+  // }));
 
-  await models.Stop.bulkCreate(stopsWithDirId);
+  // await models.Stop.bulkCreate(stopsWithDirId);
 }
 
 async function handleStop(directionID, stop) {
