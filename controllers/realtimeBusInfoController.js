@@ -1,9 +1,5 @@
 const axios = require("axios");
-
-/*
-  socket.id =  ysaC4G4Vyo5Nama2AAAF
-  socket.id =  OZ1mr3ZY-W-Q-qMdAAAH
-*/
+const uniqid = require("uniqid");
 
 async function realtimeBusInfo(io, socket, bussesToTrack, callback) {
   const buildUrl = (stopID) =>
@@ -14,10 +10,13 @@ async function realtimeBusInfo(io, socket, bussesToTrack, callback) {
 
     const response = await axios.all(requests).then(
       axios.spread((...responses) =>
-        responses.map((r, i) => ({
-          predictions: r.data,
-          trackedBusInfo: bussesToTrack[i],
-        }))
+        responses.map((r, i) => {
+          return {
+            id: uniqid(),
+            predictions: r.data,
+            trackedBusInfo: bussesToTrack[i],
+          };
+        })
       )
     );
     // socket.emit("bussesToTrackInfo", response);
