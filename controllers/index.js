@@ -17,3 +17,7 @@ exports.getStops = getStopsController;
 
 exports.updateRoutesInfo = updateRoutesInfoController;
 exports.usersController = usersController;
+
+exports.register = usersController.register;
+exports.login = usersController.login;
+exports.logout = usersController.logout;
