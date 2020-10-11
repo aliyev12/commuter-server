@@ -77,57 +77,62 @@ async function fetchPaths(routesInfo) {
       directions: [],
     };
     console.log(`Fetching path "${routeName}"" with ID ${routeID}...`);
+    newRouteInfoItem.directions = getDirections(routeID);
+    fullRoutes.push(newRouteInfoItem);
+  }
+  return fullRoutes;
+}
 
-    const pathDetailUrl = `${process.env.WMATA_BASE_URL}/Bus.svc/json/jRouteDetails?api_key=${process.env.WMATA_API_KEY}&RouteID=${routeID}`;
-    try {
-      const pathDetailResponse = await axios.get(pathDetailUrl);
-      if (pathDetailResponse && pathDetailResponse.data) {
-        const pathDetailData = pathDetailResponse.data;
+async function getDirections(routeID) {
+  const newDirections = [];
+  const pathDetailUrl = `${process.env.WMATA_BASE_URL}/Bus.svc/json/jRouteDetails?api_key=${process.env.WMATA_API_KEY}&RouteID=${routeID}`;
+  try {
+    const pathDetailResponse = await axios.get(pathDetailUrl);
+    if (pathDetailResponse && pathDetailResponse.data) {
+      const pathDetailData = pathDetailResponse.data;
 
-        Object.keys(pathDetailData).forEach((key) => {
+      Object.keys(pathDetailData).forEach((key) => {
+        if (
+          pathDetailData[key] &&
+          (key === "Direction0" || key === "Direction1")
+        ) {
+          const {
+            TripHeadsign,
+            DirectionText,
+            DirectionNum,
+            Stops,
+          } = pathDetailData[key];
           if (
-            pathDetailData[key] &&
-            (key === "Direction0" || key === "Direction1")
+            TripHeadsign &&
+            DirectionText &&
+            DirectionNum &&
+            Stops &&
+            Stops.length &&
+            Array.isArray(Stops)
           ) {
-            const {
-              TripHeadsign,
-              DirectionText,
-              DirectionNum,
-              Stops,
-            } = pathDetailData[key];
-            if (
-              TripHeadsign &&
-              DirectionText &&
-              DirectionNum &&
-              Stops &&
-              Stops.length &&
-              Array.isArray(Stops)
-            ) {
-              const newDirection = {
-                directionName: DirectionText,
-                tripHeadsign: TripHeadsign,
-                directionNum: DirectionNum,
-                stops: [
-                  ...Stops.map((stop) => ({
-                    stopID: stop.StopID,
-                    stopName: stop.Name,
-                    stopRoutes: stop.Routes,
-                  })),
-                ],
-              };
-              newRouteInfoItem.directions.push(newDirection);
-            }
-          }
-        });
+            const newDirection = {
+              directionName: DirectionText,
+              tripHeadsign: TripHeadsign,
+              directionNum: DirectionNum,
+              stops: [
+                ...Stops.map((stop) => ({
+                  stopID: stop.StopID,
+                  stopName: stop.Name,
+                  stopRoutes: stop.Routes,
+                })),
+              ],
+            };
 
-        fullRoutes.push(newRouteInfoItem);
-      }
-    } catch (error) {
-      console.log("Error = ", error);
+            newDirections.push(newDirection);
+          }
+        }
+      });
     }
+  } catch (error) {
+    console.log("Error = ", error);
   }
 
-  return fullRoutes;
+  return newDirections;
 }
 
 async function destroyAllExistingRoutesInfo() {
@@ -143,3 +148,5 @@ async function destroyAllExistingRoutesInfo() {
 }
 
 exports.fetchRoutesInfo = fetchRoutesInfo;
+exports.getAllRoutesDetails = getAllRoutesDetails;
+exports.getDirections = getDirections;
